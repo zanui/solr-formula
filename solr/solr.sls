@@ -9,23 +9,19 @@ include:
   - .jdk
 
 solr_source:
-  file.managed:
-    - name: /opt/solr-{{ solr_version }}.tgz
+  archive.extracted:
+    - name: /opt/
     - source: http://archive.apache.org/dist/lucene/solr/{{ solr_version }}/solr-{{ solr_version }}.tgz
     - source_hash: {{ solr_file_hash }}
-  cmd.run:
-    - name: tar -xf /opt/solr-{{ solr_version }}.tgz
-    - cwd: /opt
-    - unless: file /opt/solr-{{ solr_version }}
-    - require:
-      - file: solr_source
+    - archive_format: tar
+    - if_missing: /opt/solr-{{ solr_version }}/
 
 solr_collection1:
   cmd.run:
     - name: cp -rp /opt/solr-{{ solr_version }}/example /opt/solr-{{ solr_version }}/cluster1
-    - unless: file /opt/solr-{{ solr_version }}/cluster1
+    - unless: test -d /opt/solr-{{ solr_version }}/cluster1
     - require:
-      - cmd: solr_source
+      - archive: solr_source
 
 
 solr_log:
