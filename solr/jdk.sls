@@ -7,18 +7,11 @@ jdkbasedirectories:
     - makedirs: True
 
 jdkextract:
-  file.managed:
-    - name: /usr/lib/jvm/releases/jdk{{ jdk_version }}.gz
+  archive.extracted:
+    - name: /usr/lib/jvm/releases/
     - source: salt://solr/files/jdk{{ jdk_version }}.gz
-    - mode: 777
-    - require:
-      - file: jdkbasedirectories
-  cmd.run:
-    - name: tar xf jdk{{ jdk_version }}.gz
-    - cwd: /usr/lib/jvm/releases/
-    - unless: file /usr/lib/jvm/releases/jdk{{ jdk_version }}/bin
-    - require:
-      - file: jdkextract
+    - archive_format: tar
+    - if_missing: /usr/lib/jvm/releases/jdk{{ jdk_version }}/bin
 
 {% set alts = ['java', 'javac', 'javaws', 'jar', 'jps'] -%}
 {% for alt in alts %}
@@ -28,5 +21,5 @@ jdkextract:
     - path: /usr/lib/jvm/releases/jdk{{ jdk_version }}/bin/{{ alt }}
     - priority: 1
     - require:
-      - cmd: jdkextract
+      - archive: jdkextract
 {% endfor %}
